@@ -1,0 +1,9 @@
+langchain==0.1.11
+langchain_openai==0.0.8
+openai==1.13.3
+python-dotenv==1.0.1
+ipykernel==6.29.3
+pydantic==2.6.3
+fastapi==0.110.0
+uvicorn==0.27.1
+requests==2.31.0

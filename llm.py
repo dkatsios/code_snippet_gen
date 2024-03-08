@@ -1,4 +1,3 @@
-import os
 from typing import Optional
 
 from langchain_openai import ChatOpenAI
@@ -10,55 +9,52 @@ NOT_RELATED = "NOT_RELATED"
 
 class CodeChatBot:
     def __init__(self, openai_api_key: str):
+        print(f"instantiating CodeChatBot with key: {openai_api_key}")
         self.chat_history = ChatMessageHistory()
         self.chat = ChatOpenAI(
             model="gpt-3.5-turbo-1106", openai_api_key=openai_api_key, temperature=0
         )
         prompt = self._get_system_prompt()
         self.chain = prompt | self.chat
+        self.snippets_history = []
 
     def is_valid(self):
         try:
-            self("This is a test message")
-        except Exception as ex:
-            print(ex)
+            self.chat.invoke("This is a test message. Do not respond.")
+        except Exception as e:
+            print(f"is_valid() exception: {e}")
             return False
-        else:
-            return True
+        return True
 
     def _get_system_prompt(self):
+        with open("system_prompt.txt", encoding="utf-8") as f:
+            system_prompt = f.read()
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
                     "system",
-                    f"""
-                    You are a code assistant.
-                    You only respond to questions related to programming.
-                    All your responses have to be valid code snippets.
-                    If a user prompt is not related to code or you cannot respond with code
-                    you should return the keyword "{NOT_RELATED}" and after that the reason
-                    why you could not respond with a code snippet.
-                    When possible, try to respond and use the context from previous
-                    messages to respond correctly.
-                    """,
+                    system_prompt.format(not_related_key=NOT_RELATED),
                 ),
                 MessagesPlaceholder(variable_name="messages"),
             ]
         )
         return prompt
 
-    def __call__(self, msg) -> tuple[bool, Optional[str]]:
-        self.chat_history.add_user_message(msg)
-        response = self.chain.invoke({"messages": self.chat_history.messages})
-        self.chat_history.add_ai_message(response)
-        # if response.content.startswith(NOT_RELATED):
-        #     return False, None
-        return True, response.content
+    def __call__(self, msg: str) -> tuple[bool, Optional[str]]:
+        try:
+            self.chat_history.add_user_message(msg)
+            response = self.chain.invoke({"messages": self.chat_history.messages})
+            self.chat_history.add_ai_message(response)
+            print("Bot call:")
+            print(f"User: {msg}")
+            print(f"Bot: {response.content}")
+            print(f"Current history: {self.chat_history.messages}")
+            if response.content == NOT_RELATED:
+                return True, "This message is not related to programming."
+            self.snippets_history.append(response.content)
+            return True, response.content
+        except:
+            return False, None
 
     def get_code_snippets(self):
-        code_snippets = [
-            msg["content"]
-            for msg in self.chat_history.dict()["messages"]
-            if msg["type"] == "ai" and msg["content"] != NOT_RELATED
-        ]
-        return code_snippets
+        return self.snippets_history

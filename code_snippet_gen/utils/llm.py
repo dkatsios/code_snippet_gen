@@ -1,16 +1,20 @@
 from typing import Optional
 import os
+import logging
 
 from langchain_openai import ChatOpenAI
 from langchain.memory import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
+from code_snippet_gen.utils.agents import CodeExtractor
+
+logger = logging.getLogger(__name__)
 NOT_RELATED_KEY = "NOT_RELATED"
 
 
 class CodeChatBot:
     def __init__(self, openai_api_key: str):
-        print(f"instantiating CodeChatBot with key: {openai_api_key}")
+        logger.info(f"instantiating CodeChatBot with key: {openai_api_key}")
         self.chat_history = ChatMessageHistory()
         self.chat = ChatOpenAI(
             model="gpt-3.5-turbo-1106", openai_api_key=openai_api_key, temperature=0
@@ -18,12 +22,13 @@ class CodeChatBot:
         prompt = self._get_system_prompt()
         self.chain = prompt | self.chat
         self.snippets_history = []
+        self.code_extractor = CodeExtractor(openai_api_key)
 
     def is_valid(self):
         try:
             self.chat.invoke("This is a test message. Do not respond.")
         except Exception as e:
-            print(f"is_valid() exception: {e}")
+            logger.debug(f"is_valid() exception: {e}")
             return False
         return True
 
@@ -48,12 +53,12 @@ class CodeChatBot:
             self.chat_history.add_user_message(msg)
             response = self.chain.invoke({"messages": self.chat_history.messages})
             self.chat_history.add_ai_message(response)
-            print("Bot call:")
-            print(f"User: {msg}")
-            print(f"Bot: {response.content}")
-            print(f"Current history: {self.chat_history.messages}")
+            logger.debug("Bot call:")
+            logger.debug(f"User: {msg}")
+            logger.debug(f"Bot: {response.content}")
+            logger.debug(f"Current history: {self.chat_history.messages}")
             if response.content != NOT_RELATED_KEY:
-                self.snippets_history.append(response.content)
+                self._add_to_snippets_history(response.content)
             return True, response.content
         except:
             return False, None
@@ -66,5 +71,9 @@ class CodeChatBot:
             return True
         return False
 
-    def get_code_snippets(self):
-        return self.snippets_history
+    def _add_to_snippets_history(self, message: str):
+        logger.debug(f"{message=}")
+        has_code, code_text = self.code_extractor(message)
+        logger.debug(f"{has_code=}, {code_text=}")
+        if has_code:
+            self.snippets_history.append(code_text)

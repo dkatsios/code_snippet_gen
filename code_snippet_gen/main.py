@@ -41,13 +41,11 @@ async def read_index():
 async def create_bot(
     response: Response, api_key: APIKey, session_id: str = Cookie(None)
 ):
-    logger.debug("inside create_bot()")
     if not session_id:
-        logger.debug("No session id exists")
         session_id = generate_session_id()
         response.set_cookie(key="session_id", value=session_id)
-    logger.debug(f"session id: {session_id}")
-    logger.debug(f"api key: {api_key.key}")
+    logger.debug(f"{session_id=}")
+    logger.debug(f"{api_key.key=}")
     bot = bots.get(session_id) or CodeChatBot(api_key.key)
 
     if not bot.is_valid():
@@ -60,7 +58,6 @@ async def create_bot(
 
 @app.get("/check_bot/")
 async def check_bot(session_id: str = Cookie(None)):
-    logger.debug("inside check_bot()")
     if session_id is None:
         error = ErrorCodes.NO_SESSION_FOUND
         return {"status": "error", "code": error.code, "msg": error.message}
@@ -89,16 +86,13 @@ async def get_chat_messages(session_id: str = Cookie(None)):
 
 @app.post("/prompt/")
 async def receive_prompt(prompt: Prompt, session_id: str = Cookie(None)):
-    logger.debug("inside receive_prompt()")
-    logger.debug(f"session id: {session_id}")
     bot = bots.get(session_id)
     if bot is None:
-        logger.debug("bot is None")
         return RedirectResponse(url="/create_bot/")
     sucessful, msg = bot(prompt.user_input)
     msg = change_not_related(msg)
     response = {"successful": sucessful, "msg": msg}
-    logger.debug(f"receive_prompt response: {response}")
+    logger.debug(f"{response=}")
     return response
 
 
@@ -107,7 +101,7 @@ async def get_history(session_id: str = Cookie(None)):
     bot = bots.get(session_id)
     if bot is None:
         return RedirectResponse(url="/create_bot/")
-    return bot.get_code_snippets()
+    return bot.snippets_history
 
 
 @app.post("/delete-snippet/")
@@ -116,20 +110,16 @@ async def delete_snippet(snippet: Snippet, session_id: str = Cookie(None)):
     bot = bots.get(session_id)
     if bot is None:
         return RedirectResponse(url="/create_bot/")
-
-    # Check if the snippet exists in our list
     res = bot.delete_snippet(snippet.index)
     if res:
         return {"status": "ok"}
-
-    # If the snippet was not found, return an error
     raise HTTPException(status_code=404, detail="Snippet not found")
-
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=PORT, log_level="debug")
 
 
 @app.get("/favicon.ico")
 async def favicon():
     return Response(content="", status_code=204)
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=PORT, log_level="debug")

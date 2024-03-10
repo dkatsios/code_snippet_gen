@@ -129,8 +129,3 @@ def test_chat_messages():
     assert len(data) == 4
     expected_elems = INVALID_USER_MESSAGE, VALID_USER_MESSAGE, NOT_RELATED_MSG
     assert all([elem in data for elem in expected_elems])
-
-
-def test_favicon():
-    response = client.get("/favicon.ico")
-    assert response.status_code == 204

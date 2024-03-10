@@ -8,10 +8,11 @@ window.onload = async () => {
         history.forEach((snippet, index) => {
             const div = document.createElement('div');
             div.className = 'snippet';
-            div.textContent = snippet;
-            div.onclick = () => selectSnippet(index);
+            div.innerHTML = `<pre><code>${escapeHtml(snippet)}</code></pre>`;
+            div.onclick = () => selectSnippet(index, snippet);
             historyArea.appendChild(div);
         });
+        
     } else {
         historyArea.textContent = 'Failed to load history.';
     }
@@ -43,3 +44,13 @@ document.getElementById('deleteButton').onclick = async () => {
         }
     }
 };
+
+
+function escapeHtml(unsafeText) {
+    return unsafeText
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}

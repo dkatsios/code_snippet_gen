@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History</title>
+    <style>
+        #historyArea {
+            height: 300px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            padding: 5px;
+            overflow-y: auto;
+        }
+        button {
+            margin: 5px;
+            padding: 5px;
+        }
+        .snippet {
+            cursor: pointer;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .snippet:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div id="historyArea"></div>
+    <button id="deleteButton" disabled>Delete Selected</button>
+    <button onclick="window.location.href='/static/chat.html';">Return to Chat</button>
+
+    <script src="/static/history.js"></script>
+</body>
+</html>

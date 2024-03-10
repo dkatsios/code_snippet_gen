@@ -21,6 +21,7 @@
         button {
             width: 100px;
             padding: 5px;
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -28,6 +29,7 @@
     <div id="chatArea"></div>
     <input type="text" id="userInput" placeholder="Enter your message here...">
     <button onclick="sendMessage()">Send</button>
+    <button onclick="window.location.href='/static/history.html';">History</button>
 
     <script src="/static/chat.js"></script>
 </body>

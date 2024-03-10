@@ -7,3 +7,8 @@ pydantic==2.6.3
 fastapi==0.110.0
 uvicorn==0.27.1
 requests==2.31.0
+python-multipart==0.0.9
+pytest==8.1.1
+pytest-order==1.2.0
+
+-e ./

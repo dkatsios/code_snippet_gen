@@ -1,14 +1,46 @@
+async function loadChatHistory() {
+    const baseUrl = window.location.origin;
+    const response = await fetch(`${baseUrl}/chat_messages/`);
+
+    if (response.ok) {
+        const messages = await response.json();
+        messages.forEach((message, index) => {
+            // Determine who the sender is based on the message's position in the array
+            const sender = index % 2 === 0 ? 'User' : 'Bot';
+            displayMessage(message, sender);
+        });
+    } else {
+        console.error('Failed to load chat history.');
+        // You might want to handle this error more gracefully
+    }
+}
+
+async function checkBot() {
+    const baseUrl = window.location.origin;
+    const response = await fetch(`${baseUrl}/check_bot/`);
+
+    if (response.ok) {
+        const data = await response.json();
+        if (data.status === "error") {
+            window.location.href = '/static/create_bot.html';
+        } else {
+            // Load the chat history if the bot status is OK
+            await loadChatHistory();
+        }
+    } else {
+        console.error('Failed to check the bot status.');
+    }
+}
+
+checkBot();
+
 function displayMessage(message, sender) {
     const chatArea = document.getElementById('chatArea');
     const messageElement = document.createElement('div');
-
-    // Use pre and code tags for preformatted text
     const pre = document.createElement('pre');
     const code = document.createElement('code');
 
-    // For added security, consider sanitizing 'message' to avoid XSS attacks
     code.textContent = message;
-
     pre.appendChild(code);
     messageElement.appendChild(pre);
 
@@ -36,17 +68,12 @@ async function sendMessage() {
         return; // Don't send empty messages
     }
 
-    // Display user message in the chat area
     displayMessage(userText, 'User');
+    userInput.value = ''; // Clear the input field
 
-    // Clear the input field
-    userInput.value = '';
-
-    // Send the user message to the backend and await the bot's response
     const baseUrl = window.location.origin;
     const response = await fetch(`${baseUrl}/prompt/`, {
-
-        method: 'GET',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
@@ -55,7 +82,6 @@ async function sendMessage() {
 
     if (response.ok) {
         const data = await response.json();
-        // Display bot's response in the chat area
         if (data.successful) {
             displayMessage(data.msg, 'Bot');
         } else {
@@ -66,34 +92,9 @@ async function sendMessage() {
     }
 }
 
-async function checkBot() {
-    try {
-        const response = await fetch('http://localhost:8000/check_bot/');
-        if (response.ok) {
-            const data = await response.json();
-            if (data.status !== 'ok') {
-                window.location.href = 'static/set_key.html'; // Redirect if bot not instantiated
-            }
-            // Proceed if bot is instantiated
-        } else {
-            alert('Failed to check bot status. Please try again.');
-            window.location.href = 'static/set_key.html'; // Redirect on failure to communicate
-        }
-    } catch (error) {
-        console.error('Error checking bot status:', error);
-        window.location.href = 'static/set_key.html'; // Redirect on exception
-    }
-}
-
-// Call checkBot on page load
-document.addEventListener('DOMContentLoaded', (event) => {
-    checkBot();
-});
-
-
 document.getElementById('userInput').addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
-        event.preventDefault(); // Prevent default Enter key behavior (new line or form submission)
+        event.preventDefault();
         sendMessage();
     }
 });

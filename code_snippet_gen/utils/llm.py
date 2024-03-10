@@ -1,10 +1,11 @@
 from typing import Optional
+import os
 
 from langchain_openai import ChatOpenAI
 from langchain.memory import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
-NOT_RELATED = "NOT_RELATED"
+NOT_RELATED_KEY = "NOT_RELATED"
 
 
 class CodeChatBot:
@@ -27,13 +28,15 @@ class CodeChatBot:
         return True
 
     def _get_system_prompt(self):
-        with open("system_prompt.txt", encoding="utf-8") as f:
+        current_file_path = os.path.abspath(os.path.dirname(__file__))
+        system_prompt_path = os.path.join(current_file_path, "system_prompt.txt")
+        with open(system_prompt_path, encoding="utf-8") as f:
             system_prompt = f.read()
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
                     "system",
-                    system_prompt.format(not_related_key=NOT_RELATED),
+                    system_prompt.format(not_related_key=NOT_RELATED_KEY),
                 ),
                 MessagesPlaceholder(variable_name="messages"),
             ]
@@ -49,12 +52,19 @@ class CodeChatBot:
             print(f"User: {msg}")
             print(f"Bot: {response.content}")
             print(f"Current history: {self.chat_history.messages}")
-            if response.content == NOT_RELATED:
-                return True, "This message is not related to programming."
-            self.snippets_history.append(response.content)
+            if response.content != NOT_RELATED_KEY:
+                self.snippets_history.append(response.content)
             return True, response.content
         except:
             return False, None
+
+    def delete_snippet(self, snippet_index: int):
+        if isinstance(snippet_index, int) and 0 <= snippet_index < len(
+            self.snippets_history
+        ):
+            del self.snippets_history[snippet_index]
+            return True
+        return False
 
     def get_code_snippets(self):
         return self.snippets_history

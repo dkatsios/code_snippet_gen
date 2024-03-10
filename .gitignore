@@ -1,4 +1,12 @@
 env/
 .env
 playground.ipynb
+**/__pycache__
+.pytest_cache/
 **/*.pyc
+
+
+**/*.egg-info
+*.egg
+eggs/
+.eggs/

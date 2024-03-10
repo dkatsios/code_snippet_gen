@@ -1,9 +1,0 @@
-setup.py
-code_snippet_gen/__init__.py
-code_snippet_gen/main.py
-code_snippet_gen.egg-info/PKG-INFO
-code_snippet_gen.egg-info/SOURCES.txt
-code_snippet_gen.egg-info/dependency_links.txt
-code_snippet_gen.egg-info/top_level.txt
-code_snippet_gen/utils/llm.py
-code_snippet_gen/utils/structures.py

@@ -6,10 +6,13 @@ from langchain_openai import ChatOpenAI
 from langchain.memory import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
-from code_snippet_gen.utils.agents import CodeExtractor
+# from code_snippet_gen.utils.agents import CodeExtractor
 
 logger = logging.getLogger(__name__)
+
 NOT_RELATED_KEY = "NOT_RELATED"
+EXPLANATION_KEY = "EXPLANATION"
+CODE_KEY = "CODE"
 
 
 class CodeChatBot:
@@ -22,7 +25,7 @@ class CodeChatBot:
         prompt = self._get_system_prompt()
         self.chain = prompt | self.chat
         self.snippets_history = []
-        self.code_extractor = CodeExtractor(openai_api_key)
+        # self.code_extractor = CodeExtractor(openai_api_key)
 
     def is_valid(self):
         try:
@@ -41,14 +44,18 @@ class CodeChatBot:
             [
                 (
                     "system",
-                    system_prompt.format(not_related_key=NOT_RELATED_KEY),
+                    system_prompt.format(
+                        not_related_key=NOT_RELATED_KEY,
+                        explanation_key=EXPLANATION_KEY,
+                        code_key=CODE_KEY,
+                    ),
                 ),
                 MessagesPlaceholder(variable_name="messages"),
             ]
         )
         return prompt
 
-    def __call__(self, msg: str) -> tuple[bool, Optional[str]]:
+    def __call__(self, msg: str) -> Optional[str]:
         try:
             self.chat_history.add_user_message(msg)
             response = self.chain.invoke({"messages": self.chat_history.messages})
@@ -57,11 +64,25 @@ class CodeChatBot:
             logger.debug(f"User: {msg}")
             logger.debug(f"Bot: {response.content}")
             logger.debug(f"Current history: {self.chat_history.messages}")
-            if response.content != NOT_RELATED_KEY:
-                self._add_to_snippets_history(response.content)
-            return True, response.content
+            response_text = self._postprocess_response(response.content)
+            logger.info(f"{response_text=}")
+            return response_text
         except:
-            return False, None
+            return None
+        
+    def _postprocess_response(self, content: str) -> tuple[bool, None | str]:
+        logger.info(f"{content=}")
+        if content == NOT_RELATED_KEY:
+            return NOT_RELATED_KEY
+        if content.startswith(EXPLANATION_KEY):
+            content = content[len(EXPLANATION_KEY):].strip()
+            return content
+        if content.startswith(CODE_KEY):
+            content = content[len(CODE_KEY):].strip()
+            self.snippets_history.append(content)
+            return content
+        return None
+            
 
     def delete_snippet(self, snippet_index: int):
         if isinstance(snippet_index, int) and 0 <= snippet_index < len(
@@ -71,9 +92,9 @@ class CodeChatBot:
             return True
         return False
 
-    def _add_to_snippets_history(self, message: str):
-        logger.debug(f"{message=}")
-        has_code, code_text = self.code_extractor(message)
-        logger.debug(f"{has_code=}, {code_text=}")
-        if has_code:
-            self.snippets_history.append(code_text)
+    # def _add_to_snippets_history(self, message: str):
+    #     logger.debug(f"{message=}")
+    #     has_code, code_text = self.code_extractor(message)
+    #     logger.debug(f"{has_code=}, {code_text=}")
+    #     if has_code:
+    #         self.snippets_history.append(code_text)

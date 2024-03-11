@@ -21,6 +21,9 @@ static_files_path = os.path.join(current_file_path, "static")
 app.mount("/static", StaticFiles(directory=static_files_path), name="static")
 
 bots: dict[str, CodeChatBot] = dict()
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -89,7 +92,8 @@ async def receive_prompt(prompt: Prompt, session_id: str = Cookie(None)):
     bot = bots.get(session_id)
     if bot is None:
         return RedirectResponse(url="/create_bot/")
-    sucessful, msg = bot(prompt.user_input)
+    msg = bot(prompt.user_input)
+    sucessful = False if msg is None else True
     msg = change_not_related(msg)
     response = {"successful": sucessful, "msg": msg}
     logger.debug(f"{response=}")
@@ -122,4 +126,12 @@ async def favicon():
 
 
 if __name__ == "__main__":
+    # log_config = uvicorn.config.LOGGING_CONFIG
+    # log_config["formatters"]["access"][
+    #     "fmt"
+    # ] = "%(asctime)s - %(levelname)s - %(message)s"
+    # log_config["formatters"]["default"][
+    #     "fmt"
+    # ] = "%(asctime)s - %(levelname)s - %(message)s"
+    # uvicorn.run(app, host="0.0.0.0", port=PORT, log_level="debug", log_config=log_config)
     uvicorn.run(app, host="0.0.0.0", port=PORT, log_level="debug")

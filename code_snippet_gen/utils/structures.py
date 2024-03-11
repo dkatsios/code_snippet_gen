@@ -21,4 +21,5 @@ class Prompt(BaseModel):
 
 
 class Snippet(BaseModel):
-    index: int
+    index: int = -1
+    code: str = ""

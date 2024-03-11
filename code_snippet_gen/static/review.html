@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Review Snippet</title>
+    <style>
+        #resultArea pre {
+            white-space: pre-wrap;       /* CSS 3.0 */
+            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            border: 1px solid #ccc;
+            padding: 5px;
+            background-color: #f8f8f8;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <textarea id="codeSnippet" rows="10" cols="50"></textarea>
+    <button id="runButton">Run</button>
+    <button onclick="window.location.href='/static/history.html';">History</button>
+    <div id="resultArea"><pre></pre></div>
+
+    <script src="/static/review.js"></script>
+</body>
+</html>

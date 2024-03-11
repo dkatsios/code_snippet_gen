@@ -7,6 +7,7 @@ from langchain.memory import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 # from code_snippet_gen.utils.agents import CodeExtractor
+from code_snippet_gen.utils.structures import Snippet
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,7 @@ class CodeChatBot:
         )
         prompt = self._get_system_prompt()
         self.chain = prompt | self.chat
+        self.processed_history = []
         self.snippets_history = []
         # self.code_extractor = CodeExtractor(openai_api_key)
 
@@ -58,6 +60,7 @@ class CodeChatBot:
     def __call__(self, msg: str) -> Optional[str]:
         try:
             self.chat_history.add_user_message(msg)
+            self.processed_history.append(msg)
             response = self.chain.invoke({"messages": self.chat_history.messages})
             self.chat_history.add_ai_message(response)
             logger.debug("Bot call:")
@@ -69,28 +72,37 @@ class CodeChatBot:
             return response_text
         except:
             return None
-        
+
     def _postprocess_response(self, content: str) -> tuple[bool, None | str]:
         logger.info(f"{content=}")
         if content == NOT_RELATED_KEY:
+            self.processed_history.append(content)
             return NOT_RELATED_KEY
         if content.startswith(EXPLANATION_KEY):
-            content = content[len(EXPLANATION_KEY):].strip()
+            content = content[len(EXPLANATION_KEY) :].strip()
+            self.processed_history.append(content)
             return content
         if content.startswith(CODE_KEY):
-            content = content[len(CODE_KEY):].strip()
+            content = content[len(CODE_KEY) :].strip()
+            content = "\n".join(
+                [line for line in content.split("\n") if not line.startswith("```")]
+            )
+            self.processed_history.append(content)
             self.snippets_history.append(content)
             return content
         return None
-            
 
-    def delete_snippet(self, snippet_index: int):
-        if isinstance(snippet_index, int) and 0 <= snippet_index < len(
+    def delete_snippet(self, snippet: Snippet):
+        logger.info(f"{snippet=}")
+        if isinstance(snippet.index, int) and 0 <= snippet.index < len(
             self.snippets_history
         ):
-            del self.snippets_history[snippet_index]
+            del self.snippets_history[snippet.index]
             return True
         return False
+
+    def update_snippet(self, snippet: Snippet):
+        self.snippets_history[snippet.index] = snippet.code
 
     # def _add_to_snippets_history(self, message: str):
     #     logger.debug(f"{message=}")

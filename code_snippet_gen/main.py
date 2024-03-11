@@ -1,7 +1,10 @@
 from typing import List, Optional
 import os
+import sys
 import uuid
 import logging
+import subprocess
+from subprocess import CalledProcessError, run, PIPE
 
 import uvicorn
 from fastapi import FastAPI, Cookie, Response, Form, HTTPException
@@ -80,9 +83,7 @@ async def get_chat_messages(session_id: str = Cookie(None)):
     bot = bots.get(session_id)
     if bot is None:
         return RedirectResponse(url="/create_bot/")
-    chat_messages = [
-        change_not_related(msg.content) for msg in bot.chat_history.messages
-    ]
+    chat_messages = [change_not_related(msg) for msg in bot.processed_history]
     logger.debug(f"{chat_messages=}")
     return chat_messages
 
@@ -110,14 +111,37 @@ async def get_history(session_id: str = Cookie(None)):
 
 @app.post("/delete-snippet/")
 async def delete_snippet(snippet: Snippet, session_id: str = Cookie(None)):
-    print(f"delete_snippet({snippet.index}, {session_id})")
+    logger.debug(f"delete_snippet({snippet.index}, {session_id})")
     bot = bots.get(session_id)
     if bot is None:
         return RedirectResponse(url="/create_bot/")
-    res = bot.delete_snippet(snippet.index)
+    res = bot.delete_snippet(snippet)
     if res:
         return {"status": "ok"}
     raise HTTPException(status_code=404, detail="Snippet not found")
+
+
+@app.post("/execute/")
+async def execute(snippet: Snippet, session_id: str = Cookie(None)):
+    try:
+        bot = bots.get(session_id)
+        if bot is None:
+            return RedirectResponse(url="/create_bot/")
+        logger.debug(f"{snippet=}")
+        bot.update_snippet(snippet)
+        process = run(
+            [sys.executable, "-c", snippet.code], text=True, stdout=PIPE, stderr=PIPE
+        )
+        logger.debug(f"{process.stdout=}")
+        process.check_returncode()
+        return {"output": process.stdout}
+
+    except CalledProcessError as e:
+        output = f"An error occurred:\n{e.stderr}"
+        return {"output": output}
+    except Exception as e:
+        logger.error(e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/favicon.ico")

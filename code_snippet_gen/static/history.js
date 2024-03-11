@@ -1,4 +1,5 @@
 let selectedIndex = null;
+let selectedSnippet = null;
 
 window.onload = async () => {
     const historyArea = document.getElementById('historyArea');
@@ -18,12 +19,14 @@ window.onload = async () => {
     }
 };
 
-function selectSnippet(index) {
+function selectSnippet(index, snippet) {
     const snippets = document.querySelectorAll('.snippet');
     snippets.forEach(div => div.classList.remove('selected'));
     snippets[index].classList.add('selected');
     selectedIndex = index;
+    selectedSnippet = snippet;
     document.getElementById('deleteButton').disabled = false;
+    document.getElementById('reviewButton').disabled = false;
 }
 
 document.getElementById('deleteButton').onclick = async () => {
@@ -42,6 +45,15 @@ document.getElementById('deleteButton').onclick = async () => {
         } else {
             alert('Failed to delete the snippet.');
         }
+    }
+};
+
+
+document.getElementById("reviewButton").onclick = () => {
+    if (selectedSnippet !== null) {
+        localStorage.setItem("reviewSnippetIndex", selectedIndex);
+        localStorage.setItem("reviewSnippetCode", selectedSnippet);
+        window.location.href = '/static/review.html';
     }
 };
 

@@ -28,9 +28,21 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
 COPY ./requirements.txt $WORKDIR/requirements.txt
 COPY ./setup.py $WORKDIR/setup.py
 
+# Set the environment variables for LlammaCpp with GPU support
+ENV CMAKE_ARGS="-DLLAMA_CUBLAS=on"
+ENV FORCE_CMAKE=1
+
 # Install the Python dependencies
 COPY --chown=${USER}:${USER} ./code_snippet_gen/ $WORKDIR/code_snippet_gen/
 RUN python3.11 -m pip install --no-cache-dir -r $WORKDIR/requirements.txt
+
+# # Install LlammaCpp with GPU support
+# RUN CMAKE_ARGS="-DLLAMA_CUBLAS=on" FORCE_CMAKE=1 \
+#     pip install --no-cache-dir llama-cpp-python
+
+# Copy model file
+COPY ./code_snippet_gen/utils/models/llama-2-7b-chat.Q5_K_M.gguf \
+     $WORKDIR/code_snippet_gen/utils/models/llama-2-7b-chat.Q5_K_M.gguf
 
 # Copy the test configuration files
 COPY ./test.py $WORKDIR/test.py

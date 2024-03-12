@@ -5,6 +5,8 @@ playground.ipynb
 .pytest_cache/
 **/*.pyc
 
+**/*.gguf
+
 
 **/*.egg-info
 *.egg

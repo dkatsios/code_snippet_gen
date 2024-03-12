@@ -5,3 +5,7 @@
 
 **/*.egg-info
 **/*.egg-info/
+
+**/*.gguf
+
+# code_snippet_get/utils/models/

@@ -1,8 +1,14 @@
 document.addEventListener("DOMContentLoaded", function() {
     const modelTypeInputs = document.querySelectorAll('input[name="modelType"]');
+    const apiKeySection = document.getElementById("apiKeySection");
+
+    // Set initial display state based on the pre-selected model type
+    const selectedModelType = document.querySelector('input[name="modelType"]:checked').value;
+    apiKeySection.style.display = selectedModelType === "remote" ? "block" : "none";
+
     modelTypeInputs.forEach(input => {
         input.addEventListener('change', function() {
-            document.getElementById("apiKeySection").style.display = input.value === "remote" ? "block" : "none";
+            apiKeySection.style.display = input.value === "remote" ? "block" : "none";
         });
     });
 });

@@ -2,9 +2,9 @@
 
 ## Docker
 - Run `docker pull dkatsios/code_gen` to pull the docker image.
-  - To run only the remote model you can use `dkatsios/code_gen:remote_only`. 
+  - To run only the remote model you can use `dkatsios/code_gen_remote_only`. 
   The image is much lighter.
-  - To have both remote and local functionality use `dkatsios/code_gen:remote_local`. 
+  - To have both remote and local functionality use `dkatsios/code_gen_remote_local`. 
   It includes the Llamma-2 7b (chat Q5_K_M) model and can run on GPU.
 - Run 
   ```

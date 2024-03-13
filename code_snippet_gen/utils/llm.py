@@ -5,9 +5,7 @@ import logging
 from langchain_openai import ChatOpenAI
 from langchain.memory import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_community.llms import LlamaCpp
 
-# from code_snippet_gen.utils.agents import CodeExtractor
 from code_snippet_gen.utils.structures import Snippet
 
 logger = logging.getLogger(__name__)
@@ -25,8 +23,6 @@ class CodeChatBot:
         openai_api_key: None | str,
         remote_model_name: None | str = "gpt-3.5-turbo-1106",
     ):
-        # openai_api_key = None
-        logger.info(f"instantiating CodeChatBot with key: {openai_api_key}")
         self.is_local = not openai_api_key
         self.chat = self._get_chat(openai_api_key, remote_model_name)
         self._handle_system_prompt()
@@ -40,7 +36,8 @@ class CodeChatBot:
             return self._get_local_llm()
         return self._get_remote_llm(openai_api_key, remote_model_name)
 
-    def _get_local_llm(self) -> LlamaCpp:
+    def _get_local_llm(self):
+        from langchain_community.llms import LlamaCpp
         model_path = os.path.join(PAR_DIR, "models", "llama-2-7b-chat.Q5_K_M.gguf")
         return LlamaCpp(
             model_path=model_path,

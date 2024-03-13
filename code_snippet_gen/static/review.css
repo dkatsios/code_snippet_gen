@@ -1,0 +1,42 @@
+
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+    }
+    textarea {
+        width: 100%;
+        padding: 12px 20px;
+        box-sizing: border-box;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        background-color: #f8f8f8;
+        resize: vertical; /* Allows vertical resizing */
+        font-family: monospace; /* Monospaced font for better code readability */
+    }
+    
+    textarea#codeSnippet {
+        height: 400px; /* Increased height */
+    }    
+    #resultArea {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-top: 20px;
+        height: 200px;
+        overflow-y: auto;
+    }
+    button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+    }
+    button:hover {
+        background-color: #45a049;
+    }
+    

@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Key Verification</title>
+    <title>Model Selection</title>
+<link rel="stylesheet" type="text/css" href="/static/create_bot.css">
 </head>
 <body>
-    <h1>Enter your API Key</h1>
-    <form id="apiKeyForm">
-        <input type="text" id="apiKeyInput" placeholder="Enter API Key here" required>
-        <button type="submit">Submit</button>
-    </form>
+    <h1>Select Model</h1>
+    <label><input type="radio" name="modelType" value="local" disabled> Local Model</label>
+    <label><input type="radio" name="modelType" value="remote" checked> Remote Model</label>    
+
+    <div id="apiKeySection" style="display:none;">
+        <h2>Enter your API Key</h2>
+        <input type="text" id="apiKeyInput" placeholder="Enter API Key here">
+    </div>
+
+    <button id="proceedButton">Proceed</button>
     <p id="message"></p>
 
     <script src="create_bot.js"></script>

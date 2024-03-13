@@ -6,7 +6,6 @@ from langchain_openai import ChatOpenAI
 from langchain.memory import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
-# from code_snippet_gen.utils.agents import CodeExtractor
 from code_snippet_gen.utils.structures import Snippet
 
 logger = logging.getLogger(__name__)
@@ -24,8 +23,6 @@ class CodeChatBot:
         openai_api_key: str,
         remote_model_name: None | str = "gpt-3.5-turbo-1106",
     ):
-        # openai_api_key = None
-        logger.info(f"instantiating CodeChatBot with key: {openai_api_key}")
         self.is_local = False
         self.chat = self._get_chat(openai_api_key, remote_model_name)
         self._handle_system_prompt()

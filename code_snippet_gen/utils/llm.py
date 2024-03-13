@@ -38,6 +38,7 @@ class CodeChatBot:
 
     def _get_local_llm(self):
         from langchain_community.llms import LlamaCpp
+
         model_path = os.path.join(PAR_DIR, "models", "llama-2-7b-chat.Q5_K_M.gguf")
         return LlamaCpp(
             model_path=model_path,
@@ -114,23 +115,31 @@ class CodeChatBot:
 
     def _postprocess_response(self, content: str) -> tuple[bool, None | str]:
         logger.info(f"{content=}")
-        content = content.strip()
+        content = self._clean_content(content)
         if content == NOT_RELATED_KEY:
             self.processed_history.append(content)
             return NOT_RELATED_KEY
         if content.startswith(EXPLANATION_KEY):
             content = content[len(EXPLANATION_KEY) :].strip(" \n\t:")
+            content = self._clean_content(content)
             self.processed_history.append(content)
             return content
         if content.startswith(CODE_KEY):
             content = content[len(CODE_KEY) :].strip(" \n\t:")
-            content = "\n".join(
-                [line for line in content.split("\n") if not line.startswith("```")]
-            )
+            content = self._clean_content(content)
             self.processed_history.append(content)
             self.snippets_history.append(content)
             return content
         return None
+
+    @staticmethod
+    def _clean_content(content: str) -> str:
+        content = content.strip()
+        content = "\n".join(
+            [line for line in content.split("\n") if not line.startswith("```")]
+        )
+        content = content.strip()
+        return content
 
     def delete_snippet(self, snippet: Snippet):
         logger.info(f"{snippet=}")

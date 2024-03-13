@@ -1,9 +1,7 @@
 from typing import Optional
 import os
 import logging
-import re
 
-from openai import OpenAI
 from langchain_openai import ChatOpenAI
 from langchain.memory import ChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -157,16 +155,3 @@ class CodeChatBot:
             prompt += f"\n{sender}: {content}"
         prompt += "\n<</HISTORY>>\nAI: "
         return prompt
-
-    @staticmethod
-    def get_available_remote_models():
-        client = OpenAI()
-        models = [model.id for model in client.models.list().data]
-        return models
-
-    # def _add_to_snippets_history(self, message: str):
-    #     logger.debug(f"{message=}")
-    #     has_code, code_text = self.code_extractor(message)
-    #     logger.debug(f"{has_code=}, {code_text=}")
-    #     if has_code:
-    #         self.snippets_history.append(code_text)

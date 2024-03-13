@@ -1,7 +1,8 @@
 # CODE SNIPPET GENERATOR
 
 ## Docker
-- Run `docker pull dkatsios/code_gen` to pull the docker image.
+- There are two docker images available. One with remote (OpenAI) only functionality
+and one with both remote and local. For the local one a good GPU is recommended.
   - To run only the remote model you can use `dkatsios/code_gen_remote_only`. 
   The image is much lighter.
   - To have both remote and local functionality use `dkatsios/code_gen_remote_local`. 
@@ -9,13 +10,13 @@
 - Run 
   ```
   docker run --rm \
-      dkatsios/code_gen \
+      dkatsios/code_gen_remote_only \
       sh -c 'echo "OPENAI_API_KEY=<your-OpenAI-API-key>" > .env && \
       pytest test.py'
   ```
   to execute all the tests.
-- Run `docker run -p 8000:8000 dkatsios/code_gen` to start the server. 
-Change the host port if needed.
+- Run `docker run -p 8000:8000 dkatsios/code_gen_remote_only` to start the server. 
+Change the host image name / port if needed.
 
 
 ## UI
@@ -44,9 +45,12 @@ will be used. The result will be displayed below the code area.
 
 ## Cloud
 The `remote_only` image has been deployed on Azure as a container app.
-It can be accessed [here](https://code-gen-app.thankfulground-5429873d.japaneast.azurecontainerapps.io/) (although the availability is not guarantied).
+It can be accessed 
+[here](https://code-gen-app.thankfulground-5429873d.japaneast.azurecontainerapps.io/)
+(although the availability is not guarantied).
 
 
 ## Limitations
 The Local model does not work as well as the Remote one. Sometimes the response includes
 content that should not be returned. Further investigation is required.
+Also the Local model takes some time to instantiate after you press `Proceed`. Be patient!

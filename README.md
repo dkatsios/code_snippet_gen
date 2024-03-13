@@ -43,8 +43,8 @@ will be used. The result will be displayed below the code area.
 - **Delete**: The snippet is removed from the History. It remains in the chat messages though.
 
 ## Cloud
-The `remote_only` image has been deployed on Azure as a container instance.
-It can be accessed at ... (although the availability is not guarantied)
+The `remote_only` image has been deployed on Azure as a container app.
+It can be accessed [here](https://code-gen-app.thankfulground-5429873d.japaneast.azurecontainerapps.io/) (although the availability is not guarantied).
 
 
 ## Limitations

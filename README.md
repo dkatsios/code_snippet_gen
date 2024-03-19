@@ -44,9 +44,9 @@ will be used. The result will be displayed below the code area.
 - **Delete**: The snippet is removed from the History. It remains in the chat messages though.
 
 ## Cloud
-The `remote_only` image has been deployed on Azure as a container app.
+The `remote_only` image has been deployed on <s>Azure</s> GCP  as a container app.
 It can be accessed 
-[here](https://code-gen-app.thankfulground-5429873d.japaneast.azurecontainerapps.io/)
+[here](https://code-gen-eqgdxjojvq-uc.a.run.app/)
 (although the availability is not guarantied).
 
 
